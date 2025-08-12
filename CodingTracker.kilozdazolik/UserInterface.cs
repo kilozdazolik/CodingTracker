@@ -1,3 +1,4 @@
+using CodingTracker.kilozdazolik.Controllers;
 using Spectre.Console;
 using CodingTracker.kilozdazolik.Enums;
 
@@ -5,6 +6,7 @@ namespace CodingTracker.kilozdazolik;
 
 public class UserInterface
 {
+    private static TrackerController _tracker = new();
     internal static void MainMenu()
     {
         while (true) {
@@ -19,7 +21,15 @@ public class UserInterface
         
             switch (choice)
             {
-                
+                case MenuAction.StartSession:
+                    _tracker.StartSession();
+                    break;
+                case MenuAction.AddSession:
+                    _tracker.AddSession();
+                    break;
+                case MenuAction.ViewSessions:
+                    _tracker.ViewAllSessions();
+                    break;
             }
         }
     }
