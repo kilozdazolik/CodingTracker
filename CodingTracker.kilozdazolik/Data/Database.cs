@@ -7,7 +7,7 @@ namespace CodingTracker.kilozdazolik.Data;
 
 internal static class Database
 {
-    private static readonly IConfigurationRoot _config;
+    private static readonly IConfiguration _config;
 
     static Database()
     {

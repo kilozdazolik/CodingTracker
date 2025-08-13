@@ -30,6 +30,12 @@ public class UserInterface
                 case MenuAction.ViewSessions:
                     _tracker.ViewAllSessions();
                     break;
+                case MenuAction.DeleteSessions:
+                    _tracker.DeleteSession();
+                    break;
+                case MenuAction.EditSessions:
+                    _tracker.EditSession();
+                    break;
             }
         }
     }

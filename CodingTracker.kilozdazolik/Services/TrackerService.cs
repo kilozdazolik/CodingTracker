@@ -52,4 +52,38 @@ public class TrackerService
             return new List<Tracker>();
         }
     }
+    
+    public void DeleteSession(Tracker tracker)
+    {
+        try
+        {
+            using (IDbConnection conn = new SqliteConnection(cs))
+            {
+                conn.Execute("DELETE FROM CodingTracker WHERE ID = @Id", tracker);
+            }
+        }
+        catch (SqliteException ex)
+        {
+            Console.WriteLine($"Unexpected error happened: {ex.Message}");
+            throw;
+        }
+    }
+
+    public void UpdateSession(Tracker tracker)
+    {
+        try
+        {
+            using (IDbConnection conn = new SqliteConnection(cs))
+            {
+                conn.Execute("UPDATE CodingTracker SET StartTime = @StartTime, EndTime = @EndTime WHERE ID = @Id", tracker);
+            }
+        }
+        catch (SqliteException ex)
+        {
+            Console.WriteLine($"Unexpected error happened: {ex.Message}");
+            throw;
+        }
+    }
+    
+    
 }

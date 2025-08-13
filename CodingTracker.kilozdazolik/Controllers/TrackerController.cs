@@ -8,43 +8,47 @@ namespace CodingTracker.kilozdazolik.Controllers;
 public class TrackerController
 {
     private TrackerService _trackerService = new();
+    private Helper _helper = new();
 
     public void StartSession()
     {
-        DateTime now = DateTime.Now;
-        Stopwatch sw = new Stopwatch();
-        
-        AnsiConsole.MarkupLine("Press the Enter key to begin:");
+        AnsiConsole.MarkupLine("Press the Enter key to begin/stop:");
         Console.ReadLine();
-        sw.Start();
+        DateTime startTime = DateTime.Now;
+        Stopwatch sw = Stopwatch.StartNew();
 
-        while (sw.IsRunning)
+        while (!Console.KeyAvailable || Console.ReadKey(true).Key != ConsoleKey.Enter)
         {
             Console.Clear();
-            Console.WriteLine(sw.Elapsed);
+            TimeSpan ts = sw.Elapsed;
+            AnsiConsole.Markup($"Elapsed time: {ts.Hours:D2}:{ts.Minutes:D2}:{ts.Seconds:D2}");
             Thread.Sleep(1000);
         }
-        
-        AnsiConsole.MarkupLine("Press the Enter key to stop:");
-        Console.ReadLine();
-        sw.Stop();
 
-        Console.WriteLine($"Elapsed time: {sw.Elapsed}");
+        sw.Stop();
+        DateTime endTime = DateTime.Now;
         
+        Console.Clear();
+        AnsiConsole.MarkupLine($"Final elapsed time: {sw.Elapsed.Hours:D2}:{sw.Elapsed.Minutes:D2}:{sw.Elapsed.Seconds:D2}");
+        
+        _trackerService.InsertSession(startTime, endTime);
+        
+        AnsiConsole.MarkupLine("Session added to database.");
+        AnsiConsole.MarkupLine("Press Any Key to Continue.");
+        Console.ReadKey();
     }
     public void AddSession()
     {
         AnsiConsole.MarkupLine("Add a new coding session");
         var startDate = AnsiConsole.Prompt(
-            new TextPrompt<DateTime>("Please write the starting date in this format: (dd-mm-yyyy HH:mm)"));
+            new TextPrompt<DateTime>("Please write the starting date in this format: (dd-mm-yyyy HH:mm:ss)"));
         var endDate = AnsiConsole.Prompt(
-            new TextPrompt<DateTime>("Please write the ending date in this format: (dd-mm-yyyy HH:mm)"));
+            new TextPrompt<DateTime>("Please write the ending date in this format: (dd-mm-yyyy HH:mm:ss)"));
 
         _trackerService.InsertSession(startDate, endDate);
         
         AnsiConsole.MarkupLine("Session succesfuly added!");
     }
-
     public void ViewAllSessions()
     {
         List<Tracker> allSessions = _trackerService.GetAllSession();
@@ -78,5 +82,53 @@ public class TrackerController
         
         AnsiConsole.MarkupLine("Press Any Key to Continue.");
         Console.ReadKey();
+    }
+    public void DeleteSession()
+    {
+        List<Tracker> allSession = _trackerService.GetAllSession();
+
+        if (allSession.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]No session is available to delete.[/]");
+            Console.ReadKey();
+        }
+
+        var sessionToDelete = AnsiConsole.Prompt(new SelectionPrompt<Tracker>()
+            .Title("Select a [red]session[/] to delete:").UseConverter(s => $"Start: {s.StartTime} | End: {s.EndTime} - {s.Duration} elapsed.").AddChoices(allSession));
+
+        if (_helper.ConfirmMessage("Delete", sessionToDelete.StartTime.ToString()))
+        {
+            _trackerService.DeleteSession(sessionToDelete);
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("Deletion Canceled.");
+        }
+        
+        AnsiConsole.MarkupLine("Press Any Key to Continue.", "green");
+        Console.ReadKey();
+    }
+
+    public void EditSession()
+    {
+        List<Tracker> allSession = _trackerService.GetAllSession();
+        
+        if (allSession.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]No session is available to delete.[/]");
+            Console.ReadKey();
+        }
+        
+        var sessionToEdit = AnsiConsole.Prompt(new SelectionPrompt<Tracker>()
+            .Title("Select a [cyan]session[/] to edit:").UseConverter(s => $"Start: {s.StartTime} | End: {s.EndTime} - {s.Duration} elapsed.").AddChoices(allSession));
+        
+        Console.Clear();
+        var newStartingTime = AnsiConsole.Ask<DateTime>("Enter the [green]new start time[/] of the session:", sessionToEdit.StartTime);
+        var newEndingTime = AnsiConsole.Ask<DateTime>("Enter the [green]new end time[/] of the session:", sessionToEdit.EndTime);
+        
+        sessionToEdit.StartTime = newStartingTime;
+        sessionToEdit.EndTime = newEndingTime;
+
+        _trackerService.UpdateSession(sessionToEdit);
     }
 }
