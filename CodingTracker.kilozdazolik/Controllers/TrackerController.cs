@@ -33,20 +33,26 @@ public class TrackerController
         
         _trackerService.InsertSession(startTime, endTime);
         
-        AnsiConsole.MarkupLine("Session added to database.");
         AnsiConsole.MarkupLine("Press Any Key to Continue.");
         Console.ReadKey();
     }
     public void AddSession()
     {
+        bool confirm = false;
+        while (confirm != true) 
+        {
         AnsiConsole.MarkupLine("Add a new coding session");
-        var startDate = AnsiConsole.Prompt(
+         var startDate = AnsiConsole.Prompt(
             new TextPrompt<DateTime>("Please write the starting date in this format: (dd-mm-yyyy HH:mm:ss)"));
-        var endDate = AnsiConsole.Prompt(
+         var endDate = AnsiConsole.Prompt(
             new TextPrompt<DateTime>("Please write the ending date in this format: (dd-mm-yyyy HH:mm:ss)"));
-
-        _trackerService.InsertSession(startDate, endDate);
-        
+         
+         if (_helper.IsSessionDatesValid(startDate, endDate))
+         { 
+             _trackerService.InsertSession(startDate, endDate);
+             confirm = true;
+         }
+        }
         AnsiConsole.MarkupLine("Session succesfuly added!");
     }
     public void ViewAllSessions()
@@ -55,25 +61,7 @@ public class TrackerController
 
         if (allSessions.Any())
         {
-            var table = new Table();
-            table.Border(TableBorder.Rounded);
-            
-            table.AddColumn("[yellow]ID[/]");
-            table.AddColumn("[yellow]Starting date[/]");
-            table.AddColumn("[yellow]Ending date[/]");
-            table.AddColumn("[yellow]Duration[/]");
-
-            foreach (var session in allSessions)
-            {
-                table.AddRow(
-                    session.Id.ToString(),
-                    $"[blue]{session.StartTime.ToString("dd-MM-yyyy HH:mm", CultureInfo.GetCultureInfo("en-US"))}[/]",
-                    $"[cyan]{session.EndTime.ToString("dd-MM-yyyy HH:mm", CultureInfo.GetCultureInfo("en-US"))}[/]",
-                    $"[green]{session.Duration}[/]"
-                );
-            }
-            
-            AnsiConsole.Write(table);
+            _helper.CreateTable(allSessions);
         }
         else
         {
@@ -108,7 +96,6 @@ public class TrackerController
         AnsiConsole.MarkupLine("Press Any Key to Continue.", "green");
         Console.ReadKey();
     }
-
     public void EditSession()
     {
         List<Tracker> allSession = _trackerService.GetAllSession();
@@ -123,12 +110,40 @@ public class TrackerController
             .Title("Select a [cyan]session[/] to edit:").UseConverter(s => $"Start: {s.StartTime} | End: {s.EndTime} - {s.Duration} elapsed.").AddChoices(allSession));
         
         Console.Clear();
-        var newStartingTime = AnsiConsole.Ask<DateTime>("Enter the [green]new start time[/] of the session:", sessionToEdit.StartTime);
-        var newEndingTime = AnsiConsole.Ask<DateTime>("Enter the [green]new end time[/] of the session:", sessionToEdit.EndTime);
         
-        sessionToEdit.StartTime = newStartingTime;
-        sessionToEdit.EndTime = newEndingTime;
+        bool confirm = false;
+        while (confirm != true)
+        {
+            var newStartingTime = AnsiConsole.Ask<DateTime>("Enter the [green]new start time[/] of the session:",
+                sessionToEdit.StartTime);
+            var newEndingTime = AnsiConsole.Ask<DateTime>("Enter the [green]new end time[/] of the session:",
+                sessionToEdit.EndTime);
+
+            if (_helper.IsSessionDatesValid(newStartingTime, newEndingTime))
+            {
+                sessionToEdit.StartTime = newStartingTime;
+                sessionToEdit.EndTime = newEndingTime;
+                confirm = true;
+            }
+        }
 
         _trackerService.UpdateSession(sessionToEdit);
+    }
+
+    public void ViewSessionsByDate(bool ascending)
+    {
+        List<Tracker> allSessions = _trackerService.GetSessionsOrderByDate(ascending);
+
+        if (allSessions.Any())
+        {
+            _helper.CreateTable(allSessions);
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("I could not find any session.");
+        }
+        
+        AnsiConsole.MarkupLine("Press Any Key to Continue.");
+        Console.ReadKey();
     }
 }

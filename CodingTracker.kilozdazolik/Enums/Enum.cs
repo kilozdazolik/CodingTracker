@@ -4,9 +4,15 @@ internal enum MenuAction
 { 
     StartSession,
     AddSession,
-    GoalSettings,
     ViewSessions,
     DeleteSessions,
     EditSessions,
     Quit
+}
+
+internal enum ViewAction
+{
+    AllSession,
+    AscendingOrder,
+    DescendingOrder,
 }

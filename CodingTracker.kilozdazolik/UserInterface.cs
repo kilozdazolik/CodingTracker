@@ -28,7 +28,7 @@ public class UserInterface
                     _tracker.AddSession();
                     break;
                 case MenuAction.ViewSessions:
-                    _tracker.ViewAllSessions();
+                    ViewOptions();
                     break;
                 case MenuAction.DeleteSessions:
                     _tracker.DeleteSession();
@@ -36,7 +36,36 @@ public class UserInterface
                 case MenuAction.EditSessions:
                     _tracker.EditSession();
                     break;
+                
+                case MenuAction.Quit:
+                    Environment.Exit(0);
+                    break;
             }
+        }
+    }
+
+    private static void ViewOptions()
+    {
+        Console.Clear();
+
+        var filterChoice = AnsiConsole.Prompt(
+            new SelectionPrompt<ViewAction>()
+                .Title("What do you want to do [green]next[/]?")
+                .PageSize(10)
+                .MoreChoicesText("[grey](Move up and down to choose an option)[/]")
+                .AddChoices(Enum.GetValues<ViewAction>()));
+
+        switch (filterChoice)
+        {
+            case ViewAction.AllSession:
+                _tracker.ViewAllSessions();
+                break;
+            case ViewAction.AscendingOrder:
+                _tracker.ViewSessionsByDate(true);
+                break;
+            case ViewAction.DescendingOrder:
+                _tracker.ViewSessionsByDate(false);
+                break;
         }
     }
 }

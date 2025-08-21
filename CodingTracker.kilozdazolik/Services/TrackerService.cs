@@ -9,12 +9,17 @@ namespace CodingTracker.kilozdazolik.Services;
 public class TrackerService
 {
     private static string cs = Database.ConnectionString("DefaultConnection");
+
+    private static IDbConnection CreateConnection()
+    {
+        return new SqliteConnection(cs);
+    }
     
     public void InsertSession(DateTime startDate, DateTime endDate)
     {
         try
         {
-            using (IDbConnection conn = new SqliteConnection(cs))
+            using (var conn = CreateConnection())
             {
                 var sql =
                     "INSERT INTO CodingTracker (StartTime, EndTime, Duration) VALUES (@StartTime, @EndTime, @Duration)";
@@ -30,7 +35,7 @@ public class TrackerService
         }
         catch (SqliteException ex)
         {
-            Console.WriteLine($"Unexpected error happened: {ex.Message}");
+            throw new Exception("Database operation failed", ex);
         }
     }
     
@@ -38,7 +43,7 @@ public class TrackerService
     {
         try
         {
-            using (IDbConnection conn = new SqliteConnection(cs))
+            using (var conn = CreateConnection())
             {
                 var sql =
                     "SELECT * FROM CodingTracker";
@@ -57,15 +62,14 @@ public class TrackerService
     {
         try
         {
-            using (IDbConnection conn = new SqliteConnection(cs))
+            using (var conn = CreateConnection())
             {
                 conn.Execute("DELETE FROM CodingTracker WHERE ID = @Id", tracker);
             }
         }
         catch (SqliteException ex)
         {
-            Console.WriteLine($"Unexpected error happened: {ex.Message}");
-            throw;
+            throw new Exception("Database operation failed", ex);
         }
     }
 
@@ -73,17 +77,35 @@ public class TrackerService
     {
         try
         {
-            using (IDbConnection conn = new SqliteConnection(cs))
+            using (var conn = CreateConnection())
             {
                 conn.Execute("UPDATE CodingTracker SET StartTime = @StartTime, EndTime = @EndTime WHERE ID = @Id", tracker);
             }
         }
         catch (SqliteException ex)
         {
-            Console.WriteLine($"Unexpected error happened: {ex.Message}");
-            throw;
+            throw new Exception("Database operation failed", ex);
         }
     }
     
-    
+    // FILTER METHODS
+    public List<Tracker> GetSessionsOrderByDate(bool ascending)
+    {
+        try
+        {
+            using (var conn = CreateConnection())
+            {
+                var orderDirection = ascending ? "ASC" : "DESC";
+                var sql =
+                    $"SELECT * FROM CodingTracker ORDER BY StartTime {orderDirection}";
+                var sessions = conn.Query<Tracker>(sql).ToList();
+                return sessions;
+            }
+        }
+        catch (SqliteException ex)
+        {
+            Console.WriteLine($"Unexpected error happened: {ex.Message}");
+            return new List<Tracker>();
+        }
+    }
 }
