@@ -1,48 +1,44 @@
-Coding Tracker
-Coding Tracker is a console application that allows users to track their coding sessions and view statistics. The program was developed as part of the C# Academy curriculum, providing essential features for efficiently logging and analyzing coding time.
+# Coding Tracker
 
-Key Features
-The application offers the following functionalities:
+**Coding Tracker** is a console application that allows users to track their coding sessions and view statistics.  
+The program was developed as part of the **C# Academy** curriculum, providing essential features for efficiently logging and analyzing coding time.
 
-Real-time Stopwatch: Enables users to start and stop coding sessions in real-time.
+---
 
-Session Management:
+## ✨ Key Features
 
-Add Session: Manually add a new coding session.
+- **Real-time Stopwatch**: Allows users to start and stop coding sessions in real-time.  
+- **Session Management**:
+  - *Add Session*: Manually add a new coding session.  
+  - *Delete Session*: Remove an existing session.  
+  - *Edit Session*: Modify the details of an existing session.  
+- **Session Viewing**:
+  - *View Sessions*: List all recorded sessions with options for filtering and sorting.  
 
-Delete Session: Remove an existing session.
+---
 
-Edit Session: Modify the details of an existing session.
+## 🛠️ Technology Stack
 
-Session Viewing:
+- **C#** – Primary programming language  
+- **.NET SDK** – Framework required to build and run the application  
+- **SQLite** – Lightweight, file-based database for storing session data  
+- **Dapper** – Object-Relational Mapper (ORM) for simplified data access between C# and SQLite  
 
-View Sessions: List all recorded sessions with options for filtering and sorting.
+---
 
-Sorting: Sort sessions by date.
+## ⚙️ Installation and Usage
 
-Technology Stack
-This project is built using the following technologies and libraries:
+### Prerequisites
+Ensure you have the **.NET SDK** installed on your machine.
 
-C#: The primary programming language.
-
-.NET SDK: The framework required to build and run the application.
-
-SQLite: A lightweight, file-based database used for storing session data.
-
-Dapper: An Object-Relational Mapper (ORM) for simplified data access between C# and the SQLite database.
-
-Installation and Usage
-Installing and running the application is straightforward.
-
-Prerequisites
-Ensure you have the .NET SDK installed on your machine.
-
-Installation Steps
-Clone the repository from GitHub:
-git clone [repository URL]
+### Installation Steps
+1. Clone the repository from GitHub:
+   ```bash
+   git clone [https://github.com/kilozdazolik/CodingTracker]
 
 Navigate to the project directory:
-cd [repository-name]
+cd (https://github.com/kilozdazolik/CodingTracker)
 
 Run the application from your terminal:
+   ```bash
 dotnet run
