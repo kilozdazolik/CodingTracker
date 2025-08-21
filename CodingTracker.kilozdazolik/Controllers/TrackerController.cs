@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Globalization;
 using CodingTracker.kilozdazolik.Services;
 using Spectre.Console;
 using CodingTracker.kilozdazolik.Models;
