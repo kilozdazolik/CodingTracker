@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using CodingTracker.kilozdazolik.Services;
 using Spectre.Console;
 using CodingTracker.kilozdazolik.Models;
@@ -38,22 +39,35 @@ public class TrackerController
     public void AddSession()
     {
         bool confirm = false;
-        while (confirm != true) 
+        while (!confirm)
         {
-        AnsiConsole.MarkupLine("Add a new coding session");
-         var startDate = AnsiConsole.Prompt(
-            new TextPrompt<DateTime>("Please write the starting date in this format: (dd-mm-yyyy HH:mm:ss)"));
-         var endDate = AnsiConsole.Prompt(
-            new TextPrompt<DateTime>("Please write the ending date in this format: (dd-mm-yyyy HH:mm:ss)"));
-         
-         if (_helper.IsSessionDatesValid(startDate, endDate))
-         { 
-             _trackerService.InsertSession(startDate, endDate);
-             confirm = true;
-         }
+            AnsiConsole.MarkupLine("[yellow]Add a new coding session[/]");
+
+            var inputStartDate = AnsiConsole.Prompt(
+                new TextPrompt<string>("Please write the starting date in this format: (dd/MM/yyyy HH:mm:ss)"));
+            if (!_helper.ValidateDate(inputStartDate, out DateTime startDate))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid start date format![/]");
+                continue;
+            }
+            
+            var inputEndDate = AnsiConsole.Prompt(
+                new TextPrompt<string>("Please write the ending date in this format: (dd/MM/yyyy HH:mm:ss)"));
+            if (!_helper.ValidateDate(inputEndDate, out DateTime endDate))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid start date format![/]");
+                continue;
+            }
+            
+            if (_helper.IsSessionDatesValid(startDate, endDate))
+            {
+                _trackerService.InsertSession(startDate, endDate);
+                confirm = true;
+                AnsiConsole.MarkupLine("[green]Session successfully added![/]");
+            }
         }
-        AnsiConsole.MarkupLine("Session succesfuly added!");
     }
+
     public void ViewAllSessions()
     {
         List<Tracker> allSessions = _trackerService.GetAllSession();
@@ -67,8 +81,6 @@ public class TrackerController
             AnsiConsole.MarkupLine("I could not find any session.");
         }
         
-        AnsiConsole.MarkupLine("Press Any Key to Continue.");
-        Console.ReadKey();
     }
     public void DeleteSession()
     {
@@ -92,7 +104,7 @@ public class TrackerController
             AnsiConsole.MarkupLine("Deletion Canceled.");
         }
         
-        AnsiConsole.MarkupLine("Press Any Key to Continue.", "green");
+        AnsiConsole.MarkupLine("[green]Press Any Key to Continue.[/]");
         Console.ReadKey();
     }
     public void EditSession()
@@ -111,12 +123,23 @@ public class TrackerController
         Console.Clear();
         
         bool confirm = false;
-        while (confirm != true)
+        while (!confirm)
         {
-            var newStartingTime = AnsiConsole.Ask<DateTime>("Enter the [green]new start time[/] of the session:",
-                sessionToEdit.StartTime);
-            var newEndingTime = AnsiConsole.Ask<DateTime>("Enter the [green]new end time[/] of the session:",
-                sessionToEdit.EndTime);
+            var inputStartDate = AnsiConsole.Prompt(
+                new TextPrompt<string>($"Enter the [green]new start time[/] (dd/MM/yyyy HH:mm:ss)\n[grey](default: {sessionToEdit.StartTime:dd/MM/yyyy HH:mm:ss})[/]"));
+            if (!_helper.ValidateDate(inputStartDate, out DateTime newStartingTime))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid start date format![/]");
+                continue;
+            }
+
+            var inputEndDate = AnsiConsole.Prompt(
+                new TextPrompt<string>($"Enter the [green]new end time[/] (dd/MM/yyyy HH:mm:ss)\n[grey](default: {sessionToEdit.EndTime:dd/MM/yyyy HH:mm:ss})[/]"));
+            if (!_helper.ValidateDate(inputEndDate, out DateTime newEndingTime))
+            {
+                AnsiConsole.MarkupLine("[red]Invalid end date format![/]");
+                continue;
+            }
 
             if (_helper.IsSessionDatesValid(newStartingTime, newEndingTime))
             {
@@ -142,7 +165,5 @@ public class TrackerController
             AnsiConsole.MarkupLine("I could not find any session.");
         }
         
-        AnsiConsole.MarkupLine("Press Any Key to Continue.");
-        Console.ReadKey();
     }
 }

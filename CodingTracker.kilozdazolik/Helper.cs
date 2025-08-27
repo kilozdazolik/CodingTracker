@@ -12,6 +12,12 @@ public class Helper
         return confirm;
     }
 
+    public bool ValidateDate(string date, out DateTime parsedDate)
+    {
+        return DateTime.TryParseExact(date, "dd/MM/yyyy HH:mm:ss",
+            CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate);
+    }
+
     public bool IsSessionDatesValid(DateTime startDate, DateTime endDate)
     {
         int result = DateTime.Compare(startDate, endDate);
@@ -46,5 +52,14 @@ public class Helper
         }
         
         AnsiConsole.Write(table);
+    }
+
+    public void ShowWithPause(Action action)
+    {
+        AnsiConsole.Clear();
+        action();
+        AnsiConsole.MarkupLine("\n[grey]Press any key to return...[/]");
+        Console.ReadKey(true);
+        AnsiConsole.Clear();
     }
 }

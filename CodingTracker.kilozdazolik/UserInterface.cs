@@ -7,6 +7,7 @@ namespace CodingTracker.kilozdazolik;
 public class UserInterface
 {
     private static TrackerController _tracker = new();
+    private static Helper _helper = new();
     internal static void MainMenu()
     {
         while (true) {
@@ -17,24 +18,22 @@ public class UserInterface
                     .MoreChoicesText("[grey](Move up and down to choose an option)[/]")
                     .AddChoices(Enum.GetValues<MenuAction>()));
         
-            Console.Clear();
-        
             switch (choice)
             {
                 case MenuAction.StartSession:
-                    _tracker.StartSession();
+                    _helper.ShowWithPause(_tracker.StartSession);
                     break;
                 case MenuAction.AddSession:
-                    _tracker.AddSession();
+                    _helper.ShowWithPause(_tracker.AddSession);
                     break;
                 case MenuAction.ViewSessions:
                     ViewOptions();
                     break;
                 case MenuAction.DeleteSessions:
-                    _tracker.DeleteSession();
+                    _helper.ShowWithPause(_tracker.DeleteSession);
                     break;
                 case MenuAction.EditSessions:
-                    _tracker.EditSession();
+                    _helper.ShowWithPause(_tracker.EditSession);
                     break;
                 
                 case MenuAction.Quit:
@@ -46,8 +45,6 @@ public class UserInterface
 
     private static void ViewOptions()
     {
-        Console.Clear();
-
         var filterChoice = AnsiConsole.Prompt(
             new SelectionPrompt<ViewAction>()
                 .Title("What do you want to do [green]next[/]?")
@@ -58,13 +55,13 @@ public class UserInterface
         switch (filterChoice)
         {
             case ViewAction.AllSession:
-                _tracker.ViewAllSessions();
+                _helper.ShowWithPause(_tracker.ViewAllSessions);
                 break;
             case ViewAction.AscendingOrder:
-                _tracker.ViewSessionsByDate(true);
+                _helper.ShowWithPause(() => _tracker.ViewSessionsByDate(true));
                 break;
             case ViewAction.DescendingOrder:
-                _tracker.ViewSessionsByDate(false);
+                _helper.ShowWithPause(() => _tracker.ViewSessionsByDate(false));
                 break;
         }
     }
